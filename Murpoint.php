@@ -53,7 +53,20 @@ class Crawler
     protected function processUri($uri)
     {
         echo "Accessing $uri...\n";
-        $graph = Graph::newAndLoad($uri);
+        $retries = 3;
+        while (true) {
+            try {
+                $graph = Graph::newAndLoad($uri);
+                break;
+            } catch (\Exception $e) {
+                $retries--;
+                if ($retries < 0) {
+                    throw $e;
+                }
+                echo "Error! Sleeping for 10 secs, then retrying ($retries tries left)...\n";
+                sleep(10);
+            }
+        }
         $triples = $graph->serialise('ntriples');
         fwrite($this->handle, $triples);
         $this->visited[] = $uri;
