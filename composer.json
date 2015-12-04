@@ -1,0 +1,14 @@
+{
+    "name": "FalveyLibraryTechnology/Murpoint",
+    "description": "A simple RDF harvesting tool.",
+    "authors": [
+        {
+            "name": "Demian Katz",
+            "email": "demian.katz@villanova.edu"
+        }
+    ],
+    "license": "GPL-2.0",
+    "require": {
+        "easyrdf/easyrdf": "dev-master"
+    }
+}
