@@ -16,6 +16,12 @@ Basic Usage
 -----------
 php Murpoint.php [starting URI] [output file]
 
+Resume Functionality
+--------------------
+If Murpoint encounters a fatal error during execution, it will dump its state to a file. You can attempt to retry the crawl later with:
+
+php Murpoint.php --resume [name of dump file]
+
 Background
 ----------
 This project was designed to feed the triple store used by dimenovels.org, and
