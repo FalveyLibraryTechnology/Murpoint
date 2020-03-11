@@ -56,7 +56,7 @@ try {
 } catch (\Exception $e) {
     echo "Fatal error: " . $e->getMessage() . "\n";
     echo "Dumping state...\n";
-    $dumpFile = $outFile . '.state';
+    $dumpFile = $crawler->getOutputFilename() . '.state';
     $crawler->saveState($dumpFile);
     echo "You can attempt to resume later with {$argv[0]} --resume $dumpFile\n";
 }
@@ -157,6 +157,16 @@ class Crawler
             $this->processUri(array_shift($this->queue));
         }
     }
+
+    /**
+	 * Get the output filename.
+	 *
+	 * @return string
+	 */
+	public function getOutputFilename()
+	{
+	    return $this->outFile;
+	}
 
     /**
      * Save the current state of the crawler to disk.
