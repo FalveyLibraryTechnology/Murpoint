@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 2.0.1 - 2020-03-11
+
+### Added
+
+- Nothing.
+
+### Changed
+
+- Nothing.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- Bug: output filename was not defined when handling errors during a resumed job.
+
 ## 2.0 - 2019-06-19
 
 ### Added
