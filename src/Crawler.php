@@ -75,6 +75,13 @@ class Crawler
     protected $logCallback = null;
 
     /**
+     * Callbacks for progress bar.
+     *
+     * @var array
+     */
+    protected $barCallbacks = [];
+
+    /**
      * Constructor
      *
      * Note: The last three parameters are only intended to be used when resuming
@@ -111,6 +118,34 @@ class Crawler
     }
 
     /**
+     * Set callbacks for the progress bar.
+     *
+     * @param \Callable $progressCallback Advance progress by one step
+     * @param \Callable $maxStepsCallback Advance maximum size by one step
+     *
+     * @return void
+     */
+    public function setProgressBarCallbacks($progressCallback, $maxStepsCallback)
+    {
+        $this->barCallbacks['progress'] = $progressCallback;
+        $this->barCallbacks['maxSteps'] = $maxStepsCallback;
+    }
+
+    /**
+     * Trigger a progress bar action
+     *
+     * @param string $type Type of action to trigger
+     *
+     * @return void
+     */
+    protected function updateProgressBar($type)
+    {
+        if (isset($this->barCallbacks[$type])) {
+            call_user_func($this->barCallbacks[$type]);
+        }
+    }
+
+    /**
      * Log a message.
      *
      * @param string $msg Message to log
@@ -143,6 +178,7 @@ class Crawler
 
         if (!in_array($uri, $this->visited) && !in_array($uri, $this->queue) && $urlParts['host'] == $this->host) {
             $this->log("Queueing $uri");
+            $this->updateProgressBar('maxSteps');
             $this->queue[] = $uri;
         }
     }
@@ -232,6 +268,7 @@ class Crawler
         $triples = $graph->serialise('ntriples');
         fwrite($this->handle, $triples);
         $this->visited[] = $uri;
+        $this->updateProgressBar('progress');
         preg_match_all('/<(https?:\/\/[^>]*)>/', $triples, $matches);
         foreach (array_unique($matches[1]) as $uri) {
             $this->enqueue($uri);

@@ -25,6 +25,7 @@
  */
 namespace Murpoint;
 
+use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -67,18 +68,24 @@ class Command extends \Symfony\Component\Console\Command\Command
                 null,
                 InputOption::VALUE_REQUIRED,
                 'Resume an interrupted harvest using a dump file'
+			)->addOption(
+				'log',
+				null,
+				InputOption::VALUE_REQUIRED,
+				'Filename for logging (omit to use console)'
 			);
-	}
+		}
 
 	/**
 	 * Get the crawler object based on input parameters.
 	 *
-	 * @param InputInterface $input Input object
+     * @param InputInterface  $input  Input object
+     * @param OutputInterface $output Output object
 	 *
 	 * @return Crawler
 	 * @throws \Exception
 	 */
-	protected function getCrawlerFromInput(InputInterface $input): Crawler
+	protected function getCrawlerFromInput(InputInterface $input, OutputInterface $output): Crawler
 	{
 		// Special case: resume existing crawl
 		$resume = $input->getOption('resume');
@@ -86,7 +93,11 @@ class Command extends \Symfony\Component\Console\Command\Command
 			if (empty($resume) || !file_exists($resume)) {
 				throw new \Exception("Cannot open resume file.");
 			}
-			return Crawler::fromState($resume);
+			$crawler = Crawler::fromState($resume);
+			$crawler->setLogCallback(
+				$this->getLogCallback($input->getOption('log'), $output)
+			);
+			return $crawler;
 		}
 		// Standard case: starting new crawl
 		$url = $input->getArgument('url');
@@ -103,8 +114,39 @@ class Command extends \Symfony\Component\Console\Command\Command
 			);
 		}
 		$crawler = new Crawler($urlParts['host'], $outFile);
+		$crawler->setLogCallback(
+			$this->getLogCallback($input->getOption('log'), $output)
+		);
 		$crawler->enqueue($url);
 		return $crawler;
+	}
+
+	/**
+	 * Get the callback for logging messages from Murpoint.
+	 *
+	 * @param string          $filename Log filename (or false/null to use console)
+     * @param OutputInterface $output   Output object
+	 *
+	 * @return \Callable
+	 */
+	protected function getLogCallback($filename, $output)
+	{
+		// No filename? Use console.
+		if (!$filename) {
+			return function ($msg) use ($output) {
+				$output->writeln($msg);
+			};
+		}
+		// Filename set? Use file logging.
+		$handle = fopen($filename, 'a');
+		register_shutdown_function(
+			function () use ($handle) {
+				fclose($handle);
+			}
+		);
+		return function ($msg) use ($handle) {
+			fputs($handle, $msg . "\n");
+		};
 	}
 
     /**
@@ -119,17 +161,24 @@ class Command extends \Symfony\Component\Console\Command\Command
 	{
 		// Special case: resuming from dump file:
 		try {
-			$crawler = $this->getCrawlerFromInput($input);
+			$crawler = $this->getCrawlerFromInput($input, $output);
+			$progressBar = new ProgressBar($output, 0);
+			$progressCallback = function () use ($progressBar) {
+				$progressBar->advance();
+			};
+			$maxStepsCallback = function () use ($progressBar) {
+				static $steps = 0;
+				$steps++;
+				$progressBar->setMaxSteps($steps);
+			};
+			$crawler->setProgressBarCallbacks($progressCallback, $maxStepsCallback);
+			$progressBar->start();
 		} catch (\Exception $e) {
 			$output->writeln($e->getMessage());
 			return 1;
 		}
 
 		try {
-			$callback = function ($msg) use ($output) {
-				$output->writeln($msg);
-			};
-			$crawler->setLogCallback($callback);
 			$crawler->run();
 		} catch (\Exception $e) {
 			$output->writeln("Fatal error: " . $e->getMessage());
@@ -142,6 +191,7 @@ class Command extends \Symfony\Component\Console\Command\Command
 			);
 			return 1;
 		}
+		$progressBar->finish();
 		return 0;
 	}
 }

@@ -2,11 +2,12 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
-## 3.0 - in development
+## 3.0 - 2020-05-01
 
 ### Added
 
-- Nothing.
+- --log option for logging to file instead of console.
+- Progress bar.
 
 ### Changed
 

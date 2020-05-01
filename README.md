@@ -22,6 +22,12 @@ If Murpoint encounters a fatal error during execution, it will dump its state to
 
 php Murpoint.php --resume [name of dump file]
 
+Additional Options
+------------------
+You can obtain information on all available options with:
+
+php Murpoint.php --help
+
 Background
 ----------
 This project was designed to feed the triple store used by dimenovels.org, and
