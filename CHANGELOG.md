@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 3.0 - in development
+
+### Added
+
+- Nothing.
+
+### Changed
+
+- Refactored to use Symfony\Console framework.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- Bug: last URL accessed was dropped when resuming interrupted job.
+
 ## 2.0.1 - 2020-03-11
 
 ### Added
