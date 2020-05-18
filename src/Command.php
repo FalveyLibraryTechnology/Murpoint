@@ -73,6 +73,11 @@ class Command extends \Symfony\Component\Console\Command\Command
 				null,
 				InputOption::VALUE_REQUIRED,
 				'Filename for logging (omit to use console)'
+			)->addOption(
+				'timeout',
+				null,
+				InputOption::VALUE_REQUIRED,
+				'HTTP timeout (in seconds)'
 			);
 		}
 
@@ -159,6 +164,10 @@ class Command extends \Symfony\Component\Console\Command\Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
 	{
+		// Set up HTTP timeout, as needed:
+		if ($timeout = $input->getOption('timeout')) {
+			\EasyRdf\Http::getDefaultHttpClient()->setConfig(compact('timeout'));
+		}
 		// Special case: resuming from dump file:
 		try {
 			$crawler = $this->getCrawlerFromInput($input, $output);
