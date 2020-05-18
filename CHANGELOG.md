@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 3.1 - 2020-05-18
+
+### Added
+
+- Option to set HTTP timeout (--timeout=n)
+
+### Changed
+
+- Error log messages now include more details.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- Nothing.
+
 ## 3.0 - 2020-05-01
 
 ### Added
