@@ -261,7 +261,10 @@ class Crawler
                     $this->enqueue($uri);
                     throw $e;
                 }
-                $this->log("Error! Sleeping for 10 secs, then retrying ($retries tries left)...");
+                $this->log(
+                    "Error: " . $e->getMessage() . "\n"
+                    . "Sleeping for 10 secs, then retrying ($retries tries left)..."
+                );
                 sleep(10);
             }
         }
